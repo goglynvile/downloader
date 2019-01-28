@@ -12,10 +12,16 @@ import AVKit
 
 class VideoViewController: UIViewController {
     
+    @IBOutlet weak var activityView: UIActivityIndicatorView!
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let urlString = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"
+        print("Cache Memory before movie download: \(URLCache.shared.currentMemoryUsage)")
+        
+        self.activityView.startAnimating()
+        
+        //let urlString = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"
+        let urlString = "http://techslides.com/demos/sample-videos/small.mp4"
         Downloader.shared.download(urlString: urlString ) { (data, error) in
             
             if let error = error {
@@ -24,14 +30,22 @@ class VideoViewController: UIViewController {
             else {
                 guard let data = data else { return }
                 OperationQueue.main.addOperation {
-                    guard let url = data.toVideoUrl(fileName: (urlString as NSString).lastPathComponent) else { return }
+                    
+                    self.activityView.stopAnimating()
+                    
+                    guard let url = data.toVideoUrl(urlString: urlString) else { return }
+                    
                     let player = AVPlayer(url: url)
                     let playerController = AVPlayerViewController()
                     playerController.player = player
                     
-                    self.present(playerController, animated: true, completion: {
-                        player.play()
-                    })
+                    self.addChild(playerController)
+                    playerController.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+                    self.view.addSubview(playerController.view)
+                    player.play()
+                    
+                    print("Cache Memory after movie download: \(URLCache.shared.currentMemoryUsage)")
+                    
                 }
                 
             }

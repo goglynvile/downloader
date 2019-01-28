@@ -13,15 +13,25 @@
         <!--Video View Controller-->
         <scene sceneID="rwc-GU-lGq">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ipY-2I-uoY" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <viewController id="yvl-rP-YFt" customClass="VideoViewController" customModule="DownloaderDemo" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="LI8-Kv-oOY">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="603"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="hIQ-pW-3oX">
+                                <rect key="frame" x="169" y="283" width="37" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="color" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </activityIndicatorView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="jHV-F8-tbk"/>
                     </view>
+                    <connections>
+                        <outlet property="activityView" destination="hIQ-pW-3oX" id="j51-YN-Uhm"/>
+                    </connections>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ipY-2I-uoY" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1494" y="995"/>
         </scene>

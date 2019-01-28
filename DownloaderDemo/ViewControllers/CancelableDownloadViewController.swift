@@ -16,8 +16,12 @@ class CancelableDownloadViewController: UIViewController {
     @IBOutlet weak var btnCancel: UIButton!
     @IBOutlet weak var lblError: UILabel!
     
-    var downloadTaskIdentifier: Int?
-    let sampleUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Pizigani_1367_Chart_10MB.jpg/1600px-Pizigani_1367_Chart_10MB.jpg" //large image
+    var downloadData: DownloadData?
+    
+    //let sampleUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Pizigani_1367_Chart_10MB.jpg/1600px-Pizigani_1367_Chart_10MB.jpg"
+    
+    //larger image
+    let sampleUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Clocktower_Panorama_20080622_20mb.jpg/1591px-Clocktower_Panorama_20080622_20mb.jpg"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +36,10 @@ class CancelableDownloadViewController: UIViewController {
         lblError.text = ""
         if btnCancel.titleLabel?.text == "Cancel" {
             //cancel the downloading process
-            guard let taskIdentifier = downloadTaskIdentifier else { return }
+            guard let downloadData = downloadData else { return }
+            
+            DownloadManager.shared.cancelDownload(for: downloadData)
+            /*
             Downloader.shared.cancel(urlString: sampleUrl, identifier: taskIdentifier) { (success) in
                 if success {
                     OperationQueue.main.addOperation {
@@ -43,6 +50,7 @@ class CancelableDownloadViewController: UIViewController {
                     }
                 }
             }
+             */
  
         }
         else if btnCancel.titleLabel?.text == "Remove" {
@@ -60,6 +68,27 @@ class CancelableDownloadViewController: UIViewController {
             self.imgViewSample.image = nil
             self.btnCancel.setTitle("Cancel", for: .normal)
             
+            let downloadData = DownloadData(urlString: sampleUrl) { (data, error) in
+                guard let data = data, error == nil else {
+                    // update UI with error
+                    OperationQueue.main.addOperation {
+                        self.activityView.stopAnimating()
+                        self.btnCancel.setTitle("Try Again", for: .normal)
+                        self.lblError.text = error!
+                        Utility.animateImageView(imageView: self.imgViewSample, with: UIImage(named: "placeholder"))
+                    }
+                    return
+                }
+                OperationQueue.main.addOperation {
+                    self.activityView.stopAnimating()
+                    self.btnCancel.setTitle("Remove", for: .normal)
+                    Utility.animateImageView(imageView: self.imgViewSample, with: data.toImage())
+                }
+            }
+            
+            DownloadManager.shared.startDownload(with: downloadData)
+            
+            /*
             downloadTaskIdentifier = Downloader.shared.cancelableDownload(urlString: sampleUrl) { (data, error) in
                 if let error = error {
                     OperationQueue.main.addOperation {
@@ -79,6 +108,7 @@ class CancelableDownloadViewController: UIViewController {
                     }
                 }
             }
+             */
         }
     }
     

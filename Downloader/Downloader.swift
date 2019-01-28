@@ -11,7 +11,7 @@ import UIKit
 
 public typealias ReadableData = Data
 public extension ReadableData {
-    
+    /*
     func toImage() -> UIImage? {
         let image = UIImage(data: self)
         return image
@@ -38,25 +38,163 @@ public extension ReadableData {
     func toXML() {
         
     }
-    func toVideoUrl(fileName: String) -> URL? {
+    func toVideoUrl(urlString: String) -> URL? {
         guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
-        let videoURL = documentsURL.appendingPathComponent(fileName)
-        
-        if FileManager.default.fileExists(atPath: videoURL.absoluteString) {
+        let videoURL = documentsURL.appendingPathComponent((urlString as NSString).lastPathComponent)
+    
+        if FileManager.default.fileExists(atPath: videoURL.path) {
+            print("check if the url existed: \(videoURL.path)")
             return videoURL
         }
         do {
             try self.write(to: videoURL)
+            Downloader.shared.removeCacheForUrl(urlString: urlString)
             return videoURL
         }
         catch {
             return nil
         }
     }
+     */
     
     
 }
+//class Session {
+//
+//    let shared: URLSession
+//
+//    init() {
+//        shared = URLSession(configuration: .default)
+//    }
+//}
+public typealias DownloadedData = Data
+public extension DownloadedData {
 
+    typealias ReadableImage = UIImage
+    typealias ReadableJSONDictionary = Dictionary<String, Any>
+    typealias ReadableJSONArray = Array<Any>
+    typealias ReadableVideoURL = URL
+    
+    
+    func toImage() -> ReadableImage? {
+        let image = UIImage(data: self)
+        return image
+    }
+    func toJSONDictionary() -> ReadableJSONDictionary? {
+        do {
+            let jsonResponse = try JSONSerialization.jsonObject(with: self, options: [])
+            return jsonResponse as? Dictionary<String, Any>
+        }
+        catch {
+            return nil
+        }
+        
+    }
+    func toJSONArray() -> ReadableJSONArray? {
+        do {
+            let jsonResponse = try JSONSerialization.jsonObject(with: self, options: [])
+            return jsonResponse as? ReadableJSONArray
+        }
+        catch {
+            return nil
+        }
+    }
+    func toXML() {
+        
+    }
+    func toVideoUrl(urlString: String) -> ReadableVideoURL? {
+        guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+        let videoURL = documentsURL.appendingPathComponent((urlString as NSString).lastPathComponent)
+        
+        if FileManager.default.fileExists(atPath: videoURL.path) {
+            print("check if the url existed: \(videoURL.path)")
+            return videoURL
+        }
+        do {
+            try self.write(to: videoURL)
+            Downloader.shared.removeCacheForUrl(urlString: urlString)
+            return videoURL
+        }
+        catch {
+            return nil
+        }
+    }
+}
+
+public typealias DownloadedImage = DownloadedData
+
+public class DownloadData {
+    
+    let urlString: String
+    var dataTask: URLSessionDataTask!
+    public typealias completion = ((DownloadedData?, String?) -> Void)
+    var completionHandler: completion
+    //var data: DownloadedData?
+    
+//    func result<T>() -> T? {
+//        return nil
+//    }
+    
+    public init(urlString: String, completionHandler: @escaping completion) {
+        self.urlString = urlString
+        self.completionHandler = completionHandler
+    }
+
+    func start() {
+        guard let url = URL(string: urlString) else { return }
+        let urlRequest = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 10)
+        self.dataTask = URLSession.shared.dataTask(with: urlRequest, completionHandler: { (data, response, error) in
+            
+            guard let dataResponse = data,
+                error == nil else {
+                    print(error?.localizedDescription ?? "Response Error")
+                    self.completionHandler(nil, error?.localizedDescription )
+                    return }
+            print("downloaded data: \(data), error: \(error)")
+            self.completionHandler(dataResponse, nil)
+        })
+        self.dataTask.resume()
+    }
+    func cancel() {
+        self.dataTask?.cancel()
+    }
+}
+
+open class DownloadManager {
+    
+    public static let shared = DownloadManager()
+    
+    lazy var operationQueue: OperationQueue = {
+        let operationQueue = OperationQueue()
+        operationQueue.maxConcurrentOperationCount = 10
+        return operationQueue
+    }()
+    
+    open func startDownloads(with downloadDataArray:[DownloadData]) {
+
+        for downloadData in downloadDataArray {
+            operationQueue.addOperation {
+                downloadData.start()
+            }
+        }
+    }
+    open func startDownload(with downloadData: DownloadData) {
+        operationQueue.addOperation {
+            downloadData.start()
+        }
+    }
+    open func cancelDownload(for downloadData: DownloadData) {
+        downloadData.cancel()
+        for operation in operationQueue.operations {
+            print("operation: \(operation)")
+        }
+    }
+    open func cancelDownloads(for downloadDataArray: [DownloadData]) {
+        for downloadData in downloadDataArray {
+            downloadData.cancel()
+        }
+    }
+}
 open class Downloader {
     public static let shared = Downloader()
     
@@ -95,7 +233,6 @@ open class Downloader {
         
         let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
             
-            //check the file type
             guard let dataResponse = data,
                 error == nil else {
                     print(error?.localizedDescription ?? "Response Error")
