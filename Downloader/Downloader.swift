@@ -38,9 +38,22 @@ public extension ReadableData {
     func toXML() {
         
     }
-    func toVideo() {
+    func toVideoUrl(fileName: String) -> URL? {
+        guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+        let videoURL = documentsURL.appendingPathComponent(fileName)
         
+        if FileManager.default.fileExists(atPath: videoURL.absoluteString) {
+            return videoURL
+        }
+        do {
+            try self.write(to: videoURL)
+            return videoURL
+        }
+        catch {
+            return nil
+        }
     }
+    
     
 }
 

@@ -8,16 +8,15 @@
 
 import UIKit
 import Downloader
-import WebKit
+import AVKit
 
-class PDFViewController: UIViewController {
-
-    @IBOutlet weak var webView: WKWebView!
+class VideoViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        Downloader.shared.download(urlString: "http://www.africau.edu/images/default/sample.pdf") { (data, error) in
+        let urlString = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"
+        Downloader.shared.download(urlString: urlString ) { (data, error) in
             
             if let error = error {
                 
@@ -25,7 +24,14 @@ class PDFViewController: UIViewController {
             else {
                 guard let data = data else { return }
                 OperationQueue.main.addOperation {
+                    guard let url = data.toVideoUrl(fileName: (urlString as NSString).lastPathComponent) else { return }
+                    let player = AVPlayer(url: url)
+                    let playerController = AVPlayerViewController()
+                    playerController.player = player
                     
+                    self.present(playerController, animated: true, completion: {
+                        player.play()
+                    })
                 }
                 
             }

@@ -11,19 +11,60 @@ import XCTest
 
 class DownloaderTests: XCTestCase {
 
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    func testJSONDownload()  {
+        let url = "http://pastebin.com/raw/r1CN6JxN"
+        let expect = expectation(description: "Successfully fetched JSON data.")
+        
+        Downloader.shared.download(urlString: url) { (data, error) in
+            XCTAssertNil(error, "Unexpected error occured: \(String(describing: error?.debugDescription))")
+            XCTAssertNotNil(data, "No data returned.")
+            
+            let jsonArray = data?.toJSONArray()
+            XCTAssertNotNil(jsonArray, "Not JSON format.")
+            
+            expect.fulfill()
+        }
+        waitForExpectations(timeout: 10) { (error) in
+            XCTAssertNil(error, "Test timed out.")
+        }
     }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testImageDownload() {
+        let url = "https://images.unsplash.com/photo-1464550883968-cec281c19761"
+        let expect = expectation(description: "Successfully fetched image")
+        
+        Downloader.shared.download(urlString: url) { (data, error) in
+            XCTAssertNil(error, "Unexpected error occured: \(String(describing: error?.debugDescription))")
+            XCTAssertNotNil(data, "No data returned.")
+            
+            let jsonArray = data?.toImage()
+            XCTAssertNotNil(jsonArray, "Not correct image format.")
+            
+            expect.fulfill()
+        }
+        waitForExpectations(timeout: 10) { (error) in
+            XCTAssertNil(error, "Test timed out.")
+        }
     }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    
+    func testCancelDownload() {
+        let url = "https://images.unsplash.com/photo-1464550883968-cec281c19761"
+        let expect = expectation(description: "Successfully fetched image")
+        
+        let identifier = Downloader.shared.cancelableDownload(urlString: url) { (data, error) in
+            
+            
+        }
+        Downloader.shared.cancel(urlString: url, identifier: identifier!) { (success) in
+            
+            XCTAssertTrue(success, "Did not able to cancel the download.")
+            expect.fulfill()
+        }
+        
+        waitForExpectations(timeout: 10) { (error) in
+            XCTAssertNil(error, "Test timed out.")
+        }
     }
-
+    
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measure {
