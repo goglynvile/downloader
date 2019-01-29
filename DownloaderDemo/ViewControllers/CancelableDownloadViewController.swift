@@ -32,26 +32,22 @@ class CancelableDownloadViewController: UIViewController {
     }
 
     @IBAction func clickedCancel(_ sender: Any) {
-        
         lblError.text = ""
         if btnCancel.titleLabel?.text == "Cancel" {
             //cancel the downloading process
             guard let downloadData = downloadData else { return }
             
-            DownloadManager.shared.cancelDownload(for: downloadData)
-            /*
-            Downloader.shared.cancel(urlString: sampleUrl, identifier: taskIdentifier) { (success) in
-                if success {
-                    OperationQueue.main.addOperation {
-                        //success cancelling change UI state
-                        Utility.animateImageView(imageView: self.imgViewSample, with: UIImage(named: "placeholder"))
-                        self.activityView.stopAnimating()
-                        self.btnCancel.setTitle("Download", for: .normal)
-                    }
+            print("Cancelling...")
+            
+            if DownloadManager.shared.cancelDownload(for: downloadData) {
+                OperationQueue.main.addOperation {
+                    //success cancelling change UI state
+                    Utility.animateImageView(imageView: self.imgViewSample, with: UIImage(named: "placeholder"))
+                    self.activityView.stopAnimating()
+                    self.btnCancel.setTitle("Download", for: .normal)
                 }
             }
-             */
- 
+
         }
         else if btnCancel.titleLabel?.text == "Remove" {
             //remove the image from memory and UI
@@ -61,14 +57,14 @@ class CancelableDownloadViewController: UIViewController {
             //uncache
             Downloader.shared.removeCacheForUrl(urlString: sampleUrl)
         }
-        else if btnCancel.titleLabel?.text == "Download" {
+        else if btnCancel.titleLabel?.text == "Download" || btnCancel.titleLabel?.text == "Try Again"{
             
             //change UI state
             self.activityView.startAnimating()
             self.imgViewSample.image = nil
             self.btnCancel.setTitle("Cancel", for: .normal)
             
-            let downloadData = DownloadData(urlString: sampleUrl) { (data, error) in
+            downloadData = DownloadData(urlString: sampleUrl) { (data, error) in
                 guard let data = data, error == nil else {
                     // update UI with error
                     OperationQueue.main.addOperation {
@@ -86,7 +82,8 @@ class CancelableDownloadViewController: UIViewController {
                 }
             }
             
-            DownloadManager.shared.startDownload(with: downloadData)
+            DownloadManager.shared.startDownload(with: downloadData!)
+           
             
             /*
             downloadTaskIdentifier = Downloader.shared.cancelableDownload(urlString: sampleUrl) { (data, error) in

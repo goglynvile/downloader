@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        Downloader.setCacheSizeInMb(sizeInMb: 50)
+        DownloadManager.setCacheSizeInMb(sizeInMb: 50)
         return true
     }
 

@@ -143,20 +143,33 @@ public class DownloadData {
     func start() {
         guard let url = URL(string: urlString) else { return }
         let urlRequest = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 10)
-        self.dataTask = URLSession.shared.dataTask(with: urlRequest, completionHandler: { (data, response, error) in
-            
-            guard let dataResponse = data,
-                error == nil else {
-                    print(error?.localizedDescription ?? "Response Error")
-                    self.completionHandler(nil, error?.localizedDescription )
-                    return }
-            print("downloaded data: \(data), error: \(error)")
-            self.completionHandler(dataResponse, nil)
-        })
+        
+        if self.dataTask == nil {
+            self.dataTask = URLSession.shared.dataTask(with: urlRequest, completionHandler: { (data, response, error) in
+                
+               // print("response: \(response)")
+                
+                guard let dataResponse = data,
+                    error == nil else {
+                        print(error?.localizedDescription ?? "Response Error")
+                        self.completionHandler(nil, error?.localizedDescription )
+                        return }
+                print("downloaded data: \(data), error: \(error)")
+                self.completionHandler(dataResponse, nil)
+            })
+        }
+        
         self.dataTask.resume()
     }
-    func cancel() {
-        self.dataTask?.cancel()
+    
+    func cancel() -> Bool {
+        print("cancel() dataTask: \(self.dataTask)")
+        if self.dataTask.state == URLSessionTask.State.running {
+            self.dataTask?.cancel()
+            URLCache.shared.removeCachedResponse(for: self.dataTask)
+        }
+        print("Cancel() status : \(self.dataTask.state == URLSessionTask.State.canceling)")
+        return self.dataTask.state == URLSessionTask.State.canceling
     }
 }
 
@@ -164,36 +177,83 @@ open class DownloadManager {
     
     public static let shared = DownloadManager()
     
+    private var sessionTasks = [URLSessionTask]()
+    
     lazy var operationQueue: OperationQueue = {
         let operationQueue = OperationQueue()
+        operationQueue.name = "OperationQueue.downloadManager"
         operationQueue.maxConcurrentOperationCount = 10
         return operationQueue
     }()
     
-    open func startDownloads(with downloadDataArray:[DownloadData]) {
+    open class func setCacheSizeInMb(sizeInMb: Int) {
+        //set cache
+        //500 * 1024 * 1024 500Mb
+        let urlCache = URLCache(memoryCapacity: sizeInMb * 1024 * 1024, diskCapacity: 0, diskPath: nil)
+        
+        URLCache.shared = urlCache
+    }
+    
+    
+//    open func startDownloads(with downloadDataArray:[DownloadData]) {
+//
+//        for downloadData in downloadDataArray {
+//            let operation = BlockOperation {
+//                downloadData.start()
+//            }
+//            operation.name = downloadData.urlString
+//            operationQueue.addOperation(operation)
+//        }
+//        for operation in operationQueue.operations {
+//            print("Start multi operation of \(operationQueue.operationCount): \(operation.name)")
+//        }
+//
+//    }
+    open func startDownload(with downloadData: DownloadData) {
 
-        for downloadData in downloadDataArray {
-            operationQueue.addOperation {
-                downloadData.start()
+        let operation = BlockOperation {
+            downloadData.start()
+            
+            
+            self.sessionTasks.append(downloadData.dataTask)
+            for tasks in self.sessionTasks {
+                print("request: \(tasks.earliestBeginDate)")
             }
         }
-    }
-    open func startDownload(with downloadData: DownloadData) {
-        operationQueue.addOperation {
-            downloadData.start()
+        operation.name = downloadData.urlString
+        operationQueue.addOperation(operation)
+        
+        for operation in operationQueue.operations {
+            print("Start operation of \(operationQueue.operationCount): \(operation.name)")
         }
     }
-    open func cancelDownload(for downloadData: DownloadData) {
-        downloadData.cancel()
+    open func cancelDownload(for downloadData: DownloadData) -> Bool {
+        
+        //}
+        let operation = operationQueue.operations.first { (operation) -> Bool in
+            operation.name == downloadData.urlString
+        }
+        operation?.cancel()
+        
         for operation in operationQueue.operations {
             print("operation: \(operation)")
         }
+        return downloadData.cancel()
+
+        
     }
-    open func cancelDownloads(for downloadDataArray: [DownloadData]) {
-        for downloadData in downloadDataArray {
-            downloadData.cancel()
-        }
-    }
+//    open func cancelDownloads(for downloadDataArray: [DownloadData]) -> Bool {
+//
+//
+//        var counter = 0
+//        for downloadData in downloadDataArray {
+//            if downloadData.cancel() {
+//                counter += 1
+//            }
+//        }
+//
+//        return counter == downloadDataArray.count
+//    }
 }
 open class Downloader {
     public static let shared = Downloader()

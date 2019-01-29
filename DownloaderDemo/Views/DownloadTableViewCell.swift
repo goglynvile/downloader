@@ -14,19 +14,21 @@ class DownloadTableViewCell: UITableViewCell {
     @IBOutlet weak var imgViewDownload: UIImageView!
     @IBOutlet weak var activityView: UIActivityIndicatorView!
     @IBOutlet weak var btnCancel: UIButton!
+    @IBOutlet weak var lblError: UILabel!
+    
+    var downloadData: DownloadData?
     
     var imageUrl: String? {
         didSet {
              self.clickedCancel(self.btnCancel)
         }
     }
-    var downloadTaskIdentifier: Int?
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
     }
-    @IBOutlet weak var lblError: UILabel!
+   
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
@@ -40,16 +42,17 @@ class DownloadTableViewCell: UITableViewCell {
 
         if btnCancel.titleLabel?.text == "Cancel" {
             //cancel the downloading process
-            guard let taskIdentifier = downloadTaskIdentifier, let imageUrl = imageUrl else { return }
-            Downloader.shared.cancel(urlString: imageUrl, identifier: taskIdentifier) { (success) in
-                if success {
-                    OperationQueue.main.addOperation {
-                        //success cancelling change UI state
-                        Utility.animateImageView(imageView: self.imgViewDownload, with: UIImage(named: "placeholder"))
-                        self.activityView.stopAnimating()
-                        self.btnCancel.setTitle("Download", for: .normal)
-                    }
+            guard let downloadData = downloadData else { return }
+            if DownloadManager.shared.cancelDownload(for: downloadData) {
+                OperationQueue.main.addOperation {
+                    //update UI when success
+                    Utility.animateImageView(imageView: self.imgViewDownload, with: UIImage(named: "placeholder"))
+                    self.activityView.stopAnimating()
+                    self.btnCancel.setTitle("Download", for: .normal)
                 }
+            }
+            else {
+                //when cancelling returns error
             }
             
         }
@@ -60,7 +63,9 @@ class DownloadTableViewCell: UITableViewCell {
             
             //uncache
             guard let imageUrl = imageUrl else { return }
+            
             Downloader.shared.removeCacheForUrl(urlString: imageUrl)
+            
         }
         else if btnCancel.titleLabel?.text == "Download" || btnCancel.titleLabel?.text == "Try Again" {
             
@@ -70,28 +75,26 @@ class DownloadTableViewCell: UITableViewCell {
             self.btnCancel.setTitle("Cancel", for: .normal)
             
             guard let imageUrl = imageUrl else { return }
-            downloadTaskIdentifier = Downloader.shared.cancelableDownload(urlString: imageUrl) { (data, error) in
-                
-                if let error = error {
+            downloadData = DownloadData(urlString: imageUrl) { (data, error) in
+                guard let data = data, error == nil else {
+                    //update UI when error
                     OperationQueue.main.addOperation {
                         self.activityView.stopAnimating()
                         self.btnCancel.setTitle("Try Again", for: .normal)
-                        self.lblError.text = error
+                        self.lblError.text = error!
                         Utility.animateImageView(imageView: self.imgViewDownload, with: UIImage(named: "placeholder"))
                     }
+                    return
                 }
-                else {
-                    guard let data = data else { return }
-                    
-                    OperationQueue.main.addOperation {
-                        self.activityView.stopAnimating()
-                        self.btnCancel.setTitle("Remove", for: .normal)
-                        Utility.animateImageView(imageView: self.imgViewDownload, with: data.toImage())
-                    }
+                //update UI when success
+                OperationQueue.main.addOperation {
+                    self.activityView.stopAnimating()
+                    self.btnCancel.setTitle("Remove", for: .normal)
+                    Utility.animateImageView(imageView: self.imgViewDownload, with: data.toImage())
                 }
-               
-                
             }
+            DownloadManager.shared.startDownload(with: downloadData!)
+          
         }
     }
     
