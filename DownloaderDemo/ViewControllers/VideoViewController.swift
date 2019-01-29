@@ -16,11 +16,8 @@ class VideoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        print("Cache Memory before movie download: \(URLCache.shared.currentMemoryUsage)")
-        
         self.activityView.startAnimating()
-        
-        //let urlString = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"
+
         let urlString = "http://techslides.com/demos/sample-videos/small.mp4"
         
         let downloadData = DownloadData(urlString: urlString) { (data, error) in
@@ -47,25 +44,12 @@ class VideoViewController: UIViewController {
                 playerController.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
                 self.view.addSubview(playerController.view)
                 player.play()
-                
-                print("Cache Memory after movie download: \(URLCache.shared.currentMemoryUsage)")
+
             }
         }
         
         Downloader.shared.startDownload(with: downloadData)
-        
-        // Do any additional setup after loading the view.
     }
-    
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

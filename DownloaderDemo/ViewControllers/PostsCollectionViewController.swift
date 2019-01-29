@@ -9,12 +9,15 @@
 import UIKit
 import Downloader
 
-private let reuseIdentifier = "cell"
+fileprivate let reuseIdentifier = "cell"
+fileprivate let minCellWidth: CGFloat = 160
+fileprivate let maxCellHeight: CGFloat = 300
 
 class PostsCollectionViewController: UICollectionViewController {
 
     //initialize the array of posts
-    var arrayPosts = Array<Post>()
+    fileprivate var arrayPosts = Array<Post>()
+    fileprivate var layout: CustomCollectionViewLayout?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,13 +31,20 @@ class PostsCollectionViewController: UICollectionViewController {
         
         //set the delegate of the layout
         if let layout = collectionView?.collectionViewLayout as? CustomCollectionViewLayout {
+            
+            self.layout = layout
+            layout.numberOfColumns = Int(self.collectionView.bounds.width / minCellWidth)
             layout.delegate = self
         }
 
-        //self.fetchPosts()
         self.fetchPosts()
     }
     func fetchPosts() {
+        
+        self.arrayPosts.removeAll()
+        OperationQueue.main.addOperation {
+            self.collectionView.reloadData()
+        }
         let downloadData = DownloadData(urlString: serverUrl) { (data, error) in
             
             //parse the json array
@@ -84,16 +94,12 @@ class PostsCollectionViewController: UICollectionViewController {
     }
 
     // MARK: UICollectionViewDataSource
-
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
 
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
-
         return arrayPosts.count
     }
 
@@ -101,8 +107,7 @@ class PostsCollectionViewController: UICollectionViewController {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PostCollectionViewCell
         
         cell.post = arrayPosts[indexPath.item]
-        // Configure the cell
-    
+
         return cell
     }
     
@@ -116,11 +121,13 @@ class PostsCollectionViewController: UICollectionViewController {
         return refreshControl
     }()
     @objc func handleRefresh(_ refreshControl: UIRefreshControl) {
-
         refreshControl.endRefreshing()
         self.fetchPosts()
     }
+    
+    
 }
+
 extension PostsCollectionViewController: CustomCollectionViewLayoutDelegate {
     func collectionView(_ collectionView: UICollectionView,
                         heightForPhotoAtIndexPath indexPath:IndexPath) -> CGFloat {
@@ -130,14 +137,29 @@ extension PostsCollectionViewController: CustomCollectionViewLayoutDelegate {
             let ratio = origWidth / origHeight
             
             //calculate the width of the cell
-            let newWidth = collectionView.bounds.width / 2 - (collectionView.layoutMargins.left + collectionView.layoutMargins.right)
+            let numColumns = Int(collectionView.bounds.width / minCellWidth)
+            let newWidth = collectionView.bounds.width / CGFloat(numColumns) - (collectionView.layoutMargins.left + collectionView.layoutMargins.right)
             let newHeight = newWidth / CGFloat(ratio)
             
             // multiply 2 to have longer display
-            // max height set to 300
             let height = newHeight * 2
-            return height < 300 ? height : 300 // button space
+            return height < maxCellHeight ? height : maxCellHeight
         }
         return 0
+    }
+}
+
+extension PostsCollectionViewController {
+    /// Change the number of columns in the collectionview
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+
+        if let layout = self.layout {
+            let numColumns = Int(size.width / minCellWidth)
+            //layout.invalidateLayout()
+            layout.numberOfColumns = numColumns
+           
+            self.collectionView.reloadData()
+            
+        }
     }
 }

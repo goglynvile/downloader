@@ -33,14 +33,6 @@ class PostCollectionViewCell: UICollectionViewCell {
                 }
             }
             Downloader.shared.startDownload(with: downloadData)
-            
-//            Downloader.shared.download(urlString: url) { (data, error) in
-//                guard let data = data else { return }
-//                OperationQueue.main.addOperation {
-//                    Utility.animateImageView(imageView: self.imageView, with: data.toImage())
-//                }
-//
-//            }
         }
     }
     

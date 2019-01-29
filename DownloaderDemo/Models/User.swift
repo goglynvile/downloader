@@ -9,6 +9,7 @@
 import Foundation
 
 class User {
+    
     private(set) var id: String
     var username: String
     

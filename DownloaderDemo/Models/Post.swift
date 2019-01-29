@@ -11,6 +11,7 @@ import Foundation
 class Post {
     
     private(set) var id: String
+    
     var color: String?
     var width: Float?
     var height: Float?

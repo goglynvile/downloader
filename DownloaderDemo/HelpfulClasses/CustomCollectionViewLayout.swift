@@ -1,5 +1,5 @@
 //
-//  CustomLayout.swift
+//  CustomCollectionViewLayout.swift
 //  Downloader
 //
 //  Created by Glynvile Satago on 26/01/2019.
@@ -16,13 +16,12 @@ class CustomCollectionViewLayout: UICollectionViewLayout {
     
     weak var delegate: CustomCollectionViewLayoutDelegate!
 
-    fileprivate var numberOfColumns = 2
-    fileprivate var cellPadding: CGFloat = 6
-
-    fileprivate var cache = [UICollectionViewLayoutAttributes]()
-
-    fileprivate var contentHeight: CGFloat = 0
+    var numberOfColumns = 2
     
+    // MARK: fileprivate variables
+    fileprivate var cellPadding: CGFloat = 6
+    fileprivate var cache = [UICollectionViewLayoutAttributes]()
+    fileprivate var contentHeight: CGFloat = 0
     fileprivate var contentWidth: CGFloat {
         guard let collectionView = collectionView else {
             return 0
@@ -30,8 +29,6 @@ class CustomCollectionViewLayout: UICollectionViewLayout {
         let insets = collectionView.contentInset
         return collectionView.bounds.width - (insets.left + insets.right)
     }
-    
-    //
     override var collectionViewContentSize: CGSize {
         return CGSize(width: contentWidth, height: contentHeight)
     }
@@ -41,7 +38,6 @@ class CustomCollectionViewLayout: UICollectionViewLayout {
         super.prepare()
         cache.removeAll()
         
-
         guard let collectionView = collectionView else {
             return
         }

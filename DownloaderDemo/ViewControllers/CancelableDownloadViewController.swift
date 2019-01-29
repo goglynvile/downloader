@@ -16,18 +16,15 @@ class CancelableDownloadViewController: UIViewController {
     @IBOutlet weak var btnCancel: UIButton!
     @IBOutlet weak var lblError: UILabel!
     
-    var downloadData: DownloadData?
+    fileprivate var downloadData: DownloadData?
     
-    //let sampleUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Pizigani_1367_Chart_10MB.jpg/1600px-Pizigani_1367_Chart_10MB.jpg"
-    
-    //larger image
-    let sampleUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Clocktower_Panorama_20080622_20mb.jpg/1591px-Clocktower_Panorama_20080622_20mb.jpg"
+    fileprivate let sampleUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Pizigani_1367_Chart_10MB.jpg/1600px-Pizigani_1367_Chart_10MB.jpg"
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Cancelable Download"
 
-        // Do any additional setup after loading the view.
         self.clickedCancel(self.btnCancel)
     }
 
@@ -36,9 +33,7 @@ class CancelableDownloadViewController: UIViewController {
         if btnCancel.titleLabel?.text == "Cancel" {
             //cancel the downloading process
             guard let downloadData = downloadData else { return }
-            
-            print("Cancelling...")
-            
+
             if Downloader.shared.cancelDownload(for: downloadData) {
                 OperationQueue.main.addOperation {
                     //success cancelling change UI state
@@ -85,29 +80,6 @@ class CancelableDownloadViewController: UIViewController {
             }
             
             Downloader.shared.startDownload(with: downloadData!)
-           
-            
-            /*
-            downloadTaskIdentifier = Downloader.shared.cancelableDownload(urlString: sampleUrl) { (data, error) in
-                if let error = error {
-                    OperationQueue.main.addOperation {
-                        self.activityView.stopAnimating()
-                        self.btnCancel.setTitle("Try Again", for: .normal)
-                        self.lblError.text = error
-                        Utility.animateImageView(imageView: self.imgViewSample, with: UIImage(named: "placeholder"))
-                    }
-                }
-                else {
-                    guard let data = data else { return }
-                    
-                    OperationQueue.main.addOperation {
-                        self.activityView.stopAnimating()
-                        self.btnCancel.setTitle("Remove", for: .normal)
-                        Utility.animateImageView(imageView: self.imgViewSample, with: data.toImage())
-                    }
-                }
-            }
-             */
         }
     }
     

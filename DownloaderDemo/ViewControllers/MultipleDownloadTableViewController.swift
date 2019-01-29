@@ -9,9 +9,7 @@
 import UIKit
 
 class MultipleDownloadTableViewController: UITableViewController {
-    
 
-    
     fileprivate let imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Clocktower_Panorama_20080622_20mb.jpg/1591px-Clocktower_Panorama_20080622_20mb.jpg"
     
     override func viewDidLoad() {

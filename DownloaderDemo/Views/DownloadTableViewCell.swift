@@ -16,34 +16,18 @@ class DownloadTableViewCell: UITableViewCell {
     @IBOutlet weak var btnCancel: UIButton!
     @IBOutlet weak var lblError: UILabel!
     
-    var downloadData: DownloadData?
+    fileprivate var downloadData: DownloadData?
     
     var imageUrl: String? {
         didSet {
-             self.clickedCancel(self.btnCancel)
+            self.btnCancel.setTitle("Download", for: .normal)
+            self.clickedCancel(self.btnCancel)
         }
     }
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
-   
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        self.btnCancel.setTitle("Download", for: .normal)
-    }
-    
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
 
-        // Configure the view for the selected state
-    }
     @IBAction func clickedCancel(_ sender: Any) {
         
         self.lblError.text = ""
-        
-
         if btnCancel.titleLabel?.text == "Cancel" {
             //cancel the downloading process
             guard let downloadData = downloadData else { return }
@@ -55,10 +39,6 @@ class DownloadTableViewCell: UITableViewCell {
                     self.btnCancel.setTitle("Download", for: .normal)
                 }
             }
-            else {
-                //when cancelling returns error
-            }
-            
         }
         else if btnCancel.titleLabel?.text == "Remove" {
             //remove the image from memory and UI
@@ -67,7 +47,6 @@ class DownloadTableViewCell: UITableViewCell {
             
             //uncache
             downloadData?.removeFromCache()
-            
         }
         else if btnCancel.titleLabel?.text == "Download" || btnCancel.titleLabel?.text == "Try Again" {
             
