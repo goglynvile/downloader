@@ -9,8 +9,7 @@
 import Foundation
 
 // MARK: - Constant Values
-let serverUrl2 = "http://pastebin.com/raw/wgkJgazE" //their link
-let serverUrl = "https://pastebin.com/raw/r1CN6JxN" // extended json
+let serverUrl = "http://pastebin.com/raw/wgkJgazE"
 
 /// Constant values for the error AlertController
 let alertDownloadErrorTitle             = "Downloader"
