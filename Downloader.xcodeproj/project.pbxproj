@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00695F892200495D00FA8AE1 /* UserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00695F882200495D00FA8AE1 /* UserViewController.swift */; };
 		00AB551E21FEA16B00C5C31C /* Downloader.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00AB551421FEA16B00C5C31C /* Downloader.framework */; };
 		00AB552321FEA16B00C5C31C /* DownloaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00AB552221FEA16B00C5C31C /* DownloaderTests.swift */; };
 		00AB552521FEA16B00C5C31C /* Downloader.h in Headers */ = {isa = PBXBuildFile; fileRef = 00AB551721FEA16B00C5C31C /* Downloader.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		00695F882200495D00FA8AE1 /* UserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewController.swift; sourceTree = "<group>"; };
 		00AB551421FEA16B00C5C31C /* Downloader.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Downloader.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		00AB551721FEA16B00C5C31C /* Downloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Downloader.h; sourceTree = "<group>"; };
 		00AB551821FEA16B00C5C31C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 				00AB555E21FEA30300C5C31C /* CancelableDownloadViewController.swift */,
 				00AB555D21FEA30300C5C31C /* MultipleDownloadTableViewController.swift */,
 				00AB555C21FEA30300C5C31C /* VideoViewController.swift */,
+				00695F882200495D00FA8AE1 /* UserViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -353,6 +356,7 @@
 			files = (
 				00AB557021FEA84E00C5C31C /* Utility.swift in Sources */,
 				00AB556C21FEA83400C5C31C /* CancelableDownloadViewController.swift in Sources */,
+				00695F892200495D00FA8AE1 /* UserViewController.swift in Sources */,
 				00AB556A21FEA77E00C5C31C /* CustomCollectionViewLayout.swift in Sources */,
 				00AB557121FEA86000C5C31C /* DownloadTableViewCell.swift in Sources */,
 				00AB556B21FEA77E00C5C31C /* PostsCollectionViewController.swift in Sources */,

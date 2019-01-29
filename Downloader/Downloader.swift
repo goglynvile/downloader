@@ -47,6 +47,21 @@ open class Downloader {
         operationQueue.addOperation(operation)
     }
     
+    /// Starts the download of the array of data. Adds array of 'DownloadData' to the OperationQueue.
+    ///
+    /// - Parameters:
+    ///  - downloadDataArray: An 'DownloadData' array to be downloaded.
+    open func startDownloads(with downloadDataArray: [DownloadData]) {
+        for downloadData in downloadDataArray {
+            let operation = BlockOperation {
+                downloadData.start()
+            }
+            operation.name = downloadData.urlString
+            operationQueue.addOperation(operation)
+        }
+    }
+    
+    
     /// Cancel the download of the data. Cancels the operation.
     ///
     /// - Parameters:

@@ -18,6 +18,7 @@ class PostsCollectionViewController: UICollectionViewController {
     //initialize the array of posts
     fileprivate var arrayPosts = Array<Post>()
     fileprivate var layout: CustomCollectionViewLayout?
+    fileprivate var selectedIndexItem: IndexPath?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -111,6 +112,12 @@ class PostsCollectionViewController: UICollectionViewController {
         return cell
     }
     
+    // MARK: UICollectionViewDelegate
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.selectedIndexItem = indexPath
+        self.performSegue(withIdentifier: "showProfile", sender: nil)
+    }
+    
     // MARK: Add Pull to Refresh
     lazy var refreshControl: UIRefreshControl = {
         
@@ -125,6 +132,13 @@ class PostsCollectionViewController: UICollectionViewController {
         self.fetchPosts()
     }
     
+    // MARK: Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showProfile", let userViewController = segue.destination as? UserViewController {
+            guard let selectedIndexItem = selectedIndexItem else { return }
+            userViewController.post = arrayPosts[selectedIndexItem.item]
+        }
+    }
     
 }
 
