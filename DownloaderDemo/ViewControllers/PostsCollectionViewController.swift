@@ -35,11 +35,14 @@ class PostsCollectionViewController: UICollectionViewController {
         self.fetchPosts()
     }
     func fetchPosts() {
-        let downloadData = DownloadData(urlString: serverUrl) { (downloadedData, error) in
+        let downloadData = DownloadData(urlString: serverUrl) { (data, error) in
             
             //parse the json array
-            guard let posts = downloadedData?.toJSONArray() as? Array<Dictionary<String, Any>>, error == nil else {
+            guard let posts = data?.toJSONArray() as? Array<Dictionary<String, Any>>, error == nil else {
                 //display alert error here
+                OperationQueue.main.addOperation {
+                    self.present(Utility.alertViewControllerForError(message: error!), animated: true, completion: nil)
+                }
                 return }
             
             for post in posts {
@@ -77,57 +80,9 @@ class PostsCollectionViewController: UICollectionViewController {
             
         }
         
-        DownloadManager.shared.startDownload(with: downloadData)
+        Downloader.shared.startDownload(with: downloadData)
     }
 
-    func fetchPosts2() {
-        
-        // remove the posts from the array and reload the data
-        self.arrayPosts.removeAll()
-        OperationQueue.main.addOperation {
-            self.collectionView.reloadData()
-        }
-        
-        //call the service
-        Downloader.shared.download(urlString: serverUrl) { (data, error) in
-            //parse the json array
-            guard let posts = data?.toJSONArray() as? Array<Dictionary<String, Any>>, error == nil else { return }
-            
-            for post in posts {
-                guard let id = post["id"] as? String else { return }
-                let postObj = Post(id: id)
-                postObj.color = post["color"] as? String
-                postObj.width = post["width"] as? Float
-                postObj.height = post["height"] as? Float
-                
-                if let user = post["user"] as? Dictionary<String, Any> {
-                    guard let id = user["id"] as? String, let username = user["username"] as? String  else { return }
-                    
-                    let userObj = User(id: id, username: username)
-                    userObj.name = user["name"] as? String
-                    
-                    if let urls = user["profile_image"] as? Dictionary<String, String> {
-                        userObj.urlSmall = urls["small"]
-                        userObj.urlLarge = urls["large"]
-                    }
-                    
-                    postObj.user = userObj
-                }
-                
-                if let urls = post["urls"] as? Dictionary<String, String> {
-                    postObj.urlSmall = urls["small"]
-                    postObj.urlRegular = urls["regular"]
-                }
-                
-                self.arrayPosts.append(postObj)
-            }
-            OperationQueue.main.addOperation {
-                self.collectionView.reloadData()
-                
-            }
-            
-        }
-    }
     // MARK: UICollectionViewDataSource
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -179,9 +134,8 @@ extension PostsCollectionViewController: CustomCollectionViewLayoutDelegate {
             let newHeight = newWidth / CGFloat(ratio)
             
             // multiply 2 to have longer display
-            // add 28 for the button height
             // max height set to 300
-            let height = newHeight * 2 + 28
+            let height = newHeight * 2
             return height < 300 ? height : 300 // button space
         }
         return 0

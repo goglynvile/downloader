@@ -39,4 +39,10 @@ class Utility {
                             imageView.image = image },
                           completion: nil)
     }
+    class func alertViewControllerForError(message: String) -> UIAlertController {
+    
+        let alertViewController = UIAlertController(title: alertDownloadErrorTitle, message: message, preferredStyle: .alert)
+        alertViewController.addAction(UIAlertAction(title: alertDownloadErrorButtonText, style: .cancel, handler: nil))
+        return alertViewController
+    }
 }

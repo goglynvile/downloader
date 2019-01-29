@@ -22,34 +22,38 @@ class VideoViewController: UIViewController {
         
         //let urlString = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"
         let urlString = "http://techslides.com/demos/sample-videos/small.mp4"
-        Downloader.shared.download(urlString: urlString ) { (data, error) in
-            
-            if let error = error {
-                
-            }
-            else {
-                guard let data = data else { return }
+        
+        let downloadData = DownloadData(urlString: urlString) { (data, error) in
+            guard let data = data, error == nil else {
+                //update UI for error
                 OperationQueue.main.addOperation {
-                    
                     self.activityView.stopAnimating()
-                    
-                    guard let url = data.toVideoUrl(urlString: urlString) else { return }
-                    
-                    let player = AVPlayer(url: url)
-                    let playerController = AVPlayerViewController()
-                    playerController.player = player
-                    
-                    self.addChild(playerController)
-                    playerController.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-                    self.view.addSubview(playerController.view)
-                    player.play()
-                    
-                    print("Cache Memory after movie download: \(URLCache.shared.currentMemoryUsage)")
-                    
+                    self.present(Utility.alertViewControllerForError(message: error!), animated: true, completion: nil)
                 }
+                return
+            }
+            
+            // update UI if successfully downloaded the video
+            OperationQueue.main.addOperation {
                 
+                self.activityView.stopAnimating()
+                guard let url = data.toVideoUrl(urlString: urlString) else { return }
+                
+                let player = AVPlayer(url: url)
+                let playerController = AVPlayerViewController()
+                playerController.player = player
+                
+                self.addChild(playerController)
+                playerController.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+                self.view.addSubview(playerController.view)
+                player.play()
+                
+                print("Cache Memory after movie download: \(URLCache.shared.currentMemoryUsage)")
             }
         }
+        
+        Downloader.shared.startDownload(with: downloadData)
+        
         // Do any additional setup after loading the view.
     }
     

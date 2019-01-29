@@ -25,14 +25,14 @@ class PostCollectionViewCell: UICollectionViewCell {
                 self.imageView.backgroundColor = Utility.colorFromString(hexString: color)
             }
             self.imageView.image = nil
-            
+        
             let downloadData = DownloadData(urlString: url) { (data, error) in
                 guard let data = data, error == nil else { return }
                 OperationQueue.main.addOperation {
                     Utility.animateImageView(imageView: self.imageView, with: data.toImage())
                 }
             }
-            DownloadManager.shared.startDownload(with: downloadData)
+            Downloader.shared.startDownload(with: downloadData)
             
 //            Downloader.shared.download(urlString: url) { (data, error) in
 //                guard let data = data else { return }

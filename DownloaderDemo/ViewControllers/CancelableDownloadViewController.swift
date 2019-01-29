@@ -39,7 +39,7 @@ class CancelableDownloadViewController: UIViewController {
             
             print("Cancelling...")
             
-            if DownloadManager.shared.cancelDownload(for: downloadData) {
+            if Downloader.shared.cancelDownload(for: downloadData) {
                 OperationQueue.main.addOperation {
                     //success cancelling change UI state
                     Utility.animateImageView(imageView: self.imgViewSample, with: UIImage(named: "placeholder"))
@@ -55,7 +55,9 @@ class CancelableDownloadViewController: UIViewController {
             Utility.animateImageView(imageView: self.imgViewSample, with: UIImage(named: "placeholder"))
             
             //uncache
-            Downloader.shared.removeCacheForUrl(urlString: sampleUrl)
+            if let downloadData = downloadData {
+                downloadData.removeFromCache()
+            }
         }
         else if btnCancel.titleLabel?.text == "Download" || btnCancel.titleLabel?.text == "Try Again"{
             
@@ -82,7 +84,7 @@ class CancelableDownloadViewController: UIViewController {
                 }
             }
             
-            DownloadManager.shared.startDownload(with: downloadData!)
+            Downloader.shared.startDownload(with: downloadData!)
            
             
             /*

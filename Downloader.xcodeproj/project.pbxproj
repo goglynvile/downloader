@@ -161,9 +161,9 @@
 		00AB555A21FEA2F900C5C31C /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				00AB555B21FEA30300C5C31C /* PostsCollectionViewController.swift */,
 				00AB555E21FEA30300C5C31C /* CancelableDownloadViewController.swift */,
 				00AB555D21FEA30300C5C31C /* MultipleDownloadTableViewController.swift */,
-				00AB555B21FEA30300C5C31C /* PostsCollectionViewController.swift */,
 				00AB555C21FEA30300C5C31C /* VideoViewController.swift */,
 			);
 			path = ViewControllers;

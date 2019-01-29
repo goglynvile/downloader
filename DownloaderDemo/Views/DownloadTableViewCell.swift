@@ -29,6 +29,10 @@ class DownloadTableViewCell: UITableViewCell {
         // Initialization code
     }
    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        self.btnCancel.setTitle("Download", for: .normal)
+    }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
@@ -43,7 +47,7 @@ class DownloadTableViewCell: UITableViewCell {
         if btnCancel.titleLabel?.text == "Cancel" {
             //cancel the downloading process
             guard let downloadData = downloadData else { return }
-            if DownloadManager.shared.cancelDownload(for: downloadData) {
+            if Downloader.shared.cancelDownload(for: downloadData) {
                 OperationQueue.main.addOperation {
                     //update UI when success
                     Utility.animateImageView(imageView: self.imgViewDownload, with: UIImage(named: "placeholder"))
@@ -62,9 +66,7 @@ class DownloadTableViewCell: UITableViewCell {
             Utility.animateImageView(imageView: self.imgViewDownload, with: UIImage(named: "placeholder"))
             
             //uncache
-            guard let imageUrl = imageUrl else { return }
-            
-            Downloader.shared.removeCacheForUrl(urlString: imageUrl)
+            downloadData?.removeFromCache()
             
         }
         else if btnCancel.titleLabel?.text == "Download" || btnCancel.titleLabel?.text == "Try Again" {
@@ -93,7 +95,7 @@ class DownloadTableViewCell: UITableViewCell {
                     Utility.animateImageView(imageView: self.imgViewDownload, with: data.toImage())
                 }
             }
-            DownloadManager.shared.startDownload(with: downloadData!)
+            Downloader.shared.startDownload(with: downloadData!)
           
         }
     }

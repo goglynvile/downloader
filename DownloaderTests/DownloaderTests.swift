@@ -15,7 +15,8 @@ class DownloaderTests: XCTestCase {
         let url = "http://pastebin.com/raw/r1CN6JxN"
         let expect = expectation(description: "Successfully fetched JSON data.")
         
-        Downloader.shared.download(urlString: url) { (data, error) in
+        let downloadData = DownloadData(urlString: url) { (data, error) in
+            
             XCTAssertNil(error, "Unexpected error occured: \(String(describing: error?.debugDescription))")
             XCTAssertNotNil(data, "No data returned.")
             
@@ -24,6 +25,9 @@ class DownloaderTests: XCTestCase {
             
             expect.fulfill()
         }
+        
+        Downloader.shared.startDownload(with: downloadData)
+        
         waitForExpectations(timeout: 10) { (error) in
             XCTAssertNil(error, "Test timed out.")
         }
@@ -32,7 +36,7 @@ class DownloaderTests: XCTestCase {
         let url = "https://images.unsplash.com/photo-1464550883968-cec281c19761"
         let expect = expectation(description: "Successfully fetched image")
         
-        Downloader.shared.download(urlString: url) { (data, error) in
+        let downloadData = DownloadData(urlString: url) { (data, error) in
             XCTAssertNil(error, "Unexpected error occured: \(String(describing: error?.debugDescription))")
             XCTAssertNotNil(data, "No data returned.")
             
@@ -41,6 +45,7 @@ class DownloaderTests: XCTestCase {
             
             expect.fulfill()
         }
+        Downloader.shared.startDownload(with: downloadData)
         waitForExpectations(timeout: 10) { (error) in
             XCTAssertNil(error, "Test timed out.")
         }
@@ -50,15 +55,15 @@ class DownloaderTests: XCTestCase {
         let url = "https://images.unsplash.com/photo-1464550883968-cec281c19761"
         let expect = expectation(description: "Successfully fetched image")
         
-        let identifier = Downloader.shared.cancelableDownload(urlString: url) { (data, error) in
-            
+        let downloadData = DownloadData(urlString: url) { (data, error) in
             
         }
-        Downloader.shared.cancel(urlString: url, identifier: identifier!) { (success) in
-            
-            XCTAssertTrue(success, "Did not able to cancel the download.")
-            expect.fulfill()
-        }
+        Downloader.shared.startDownload(with: downloadData)
+        
+        let success = Downloader.shared.cancelDownload(for: downloadData)
+        
+        XCTAssertTrue(success, "Did not able to cancel the download.")
+        expect.fulfill()
         
         waitForExpectations(timeout: 10) { (error) in
             XCTAssertNil(error, "Test timed out.")
